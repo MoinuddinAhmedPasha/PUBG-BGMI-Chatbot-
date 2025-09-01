@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PUBG AI Chatbot By Moinuddin Ahmed Pasha</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #1a1a1a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #222;
+      padding: 12px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      border-bottom: 2px solid #333;
+      position: relative;
+    }
+    header button {
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #444;
+      color: #fff;
+    }
+    #chat {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #111;
+    }
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      position: relative;
+      word-wrap: break-word;
+    }
+    .user-message {
+      align-self: flex-end;
+      background: #007bff;
+      color: #fff;
+      border-bottom-right-radius: 0;
+    }
+    .bot-message {
+      align-self: flex-start;
+      background: #333;
+      color: #fff;
+      border-bottom-left-radius: 0;
+    }
+    .timestamp {
+      display: block;
+      font-size: 0.7rem;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+    #input-area {
+      display: flex;
+      padding: 8px;
+      background: #222;
+      border-top: 2px solid #333;
+    }
+    #userInput {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+    }
+    #sendBtn {
+      margin-left: 8px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+    #sendBtn:hover {
+      background: #0056b3;
+    }
+    #suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 6px;
+      background: #181818;
+      border-top: 1px solid #333;
+    }
+    #suggestions button {
+      flex: 1;
+      padding: 10px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background: #444;
+      color: #fff;
+      cursor: pointer;
+      min-width: 80px;
+    }
+    #suggestions button:hover {
+      background: #555;
+    }
+    /* Light mode */
+    body.light {
+      background: #f7f7f7;
+      color: #111;
+    }
+    body.light header {
+      background: #ddd;
+      color: #000;
+      border-bottom: 2px solid #bbb;
+    }
+    body.light #chat {
+      background: #f1f1f1;
+    }
+    body.light .bot-message {
+      background: #e0e0e0;
+      color: #000;
+    }
+    body.light .user-message {
+      background: #007bff;
+      color: #fff;
+    }
+    body.light #input-area {
+      background: #ddd;
+      border-top: 2px solid #bbb;
+    }
+    body.light #suggestions {
+      background: #e9e9e9;
+    }
+    /* Responsive mobile */
+    @media (max-width: 600px) {
+      header {
+        font-size: 1.2rem;
+        padding: 10px;
+      }
+      #userInput {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+      #sendBtn {
+        font-size: 0.9rem;
+        padding: 10px 12px;
+      }
+      #suggestions button {
+        font-size: 0.8rem;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    PUBG AI Chatbot By Moinuddin Ahmed Pasha
+    <button onclick="toggleMode()">🌙/☀️</button>
+  </header>
+
+  <div id="chat"></div>
+
+  <!-- Static Quick Suggestions -->
+  <div id="suggestions">
+    <button onclick="suggest('weapons')">🔫 Weapons list</button>
+    <button onclick="suggest('best gun for close range')">🎯 Best close-range gun</button>
+    <button onclick="suggest('hot drop erangel')">🗺 Hot drop in Erangel</button>
+    <button onclick="suggest('rank up')">🏅 How to rank up fast</button>
+    <button onclick="suggest('sensitivity')">🎮 Best sensitivity</button>
+    <button onclick="suggest('vehicles')">🚗 PUBG Vehicles</button>
+    <button onclick="suggest('healing')">💊 Healing items</button>
+  </div>
+
+  <div id="input-area">
+    <input id="userInput" type="text" placeholder="Ask about PUBG..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const chat = document.getElementById("chat");
+
+    const knowledgeBase = {
+      "weapons": "PUBG has ARs (M416, AKM, Beryl), DMRs (SKS, Mini14), Snipers (AWM, Kar98k), SMGs (UZI, UMP45), Shotguns (S1897, DBS), and LMGs (DP-28, M249).",
+      "best gun for close range": "The UZI, Vector, and DBS are deadly at close range due to their high fire rate.",
+      "best gun for long range": "The AWM is the king of snipers, while Mini14 and SLR are great for DMR use.",
+      "attachments": "Attachments include Scopes (2x–8x), Grips (Vertical, Angled), Muzzles (Compensator, Suppressor), and Magazines.",
+      "maps": "PUBG maps: Erangel, Miramar, Sanhok, Livik, Vikendi. Each has unique terrain and loot spots.",
+      "hot drop erangel": "Popular hot drops: Pochinki, School, Military Base, Georgopol.",
+      "vehicles": "Vehicles: UAZ, Dacia, Buggy, Bike, BRDM. UAZ is strong, Dacia is fast, Bike is agile.",
+      "healing": "Healing items: Bandages, First Aid Kit, Med Kit, Energy Drink, Painkiller, Adrenaline.",
+      "sensitivity": "Recommended: Gyroscope ON, ADS 35–45%, 6x scope around 15%, 8x scope around 8–12%.",
+      "rank up": "To rank up: survive longer, get kills, avoid hot drops every game, and play with squad for support.",
+      "awm": "AWM: Bolt-action sniper, highest damage (120 per shot). Uses .300 Magnum ammo. Effective up to 1000m. Best for long-range headshots.",
+      "m416": "M416: Most balanced AR. Uses 5.56mm ammo. Moderate recoil, high stability with attachments. Damage: 41 per shot.",
+      "akm": "AKM: High-damage AR (47 per shot). Uses 7.62mm. Strong in close range but high recoil.",
+      "groza": "Groza: Rare AR (airdrop only). Uses 7.62mm. Damage 47, very high fire rate. Deadly in close combat.",
+      "weapons": "PUBG has ARs (M416, AKM, Beryl), DMRs (SKS, Mini14), Snipers (AWM, Kar98k), SMGs (UZI, UMP45), Shotguns (S1897, DBS), and LMGs (DP-28, M249).",
+      "best gun for close range": "The UZI, Vector, and DBS are deadly at close range due to their high fire rate.",
+      "best gun for long range": "The AWM is the king of snipers, while Mini14 and SLR are great for DMR use.",
+      "attachments": "Attachments include Scopes (2x–8x), Grips (Vertical, Angled), Muzzles (Compensator, Suppressor), and Magazines.",
+      "maps": "PUBG maps: Erangel, Miramar, Sanhok, Livik, Vikendi. Each has unique terrain and loot spots.",
+      "hot drop erangel": "Popular hot drops: Pochinki, School, Military Base, Georgopol.",
+      "vehicles": "Vehicles: UAZ, Dacia, Buggy, Bike, BRDM. UAZ is strong, Dacia is fast, Bike is agile.",
+      "healing": "Healing items: Bandages, First Aid Kit, Med Kit, Energy Drink, Painkiller, Adrenaline.",
+      "sensitivity": "Recommended: Gyroscope ON, ADS 35–45%, 6x scope around 15%, 8x scope around 8–12%.",
+      "rank up": "To rank up: survive longer, get kills, avoid hot drops every game, and play with squad for support.",
+      "royale pass": "The Royale Pass gives missions, outfits, gun skins, and rewards. Elite Pass unlocks premium rewards.",
+      "events": "Events change weekly – including themed modes, rewards, and seasonal challenges.",
+      "updates": "PUBG updates bring new maps, modes, weapons, and balance changes every season.",
+      "strategies": "For aggressive: rush fights, control compounds. For passive: loot safe, rotate early, stay in zone.",
+      "weapons": "PUBG Weapons:\n- AR: M416, AKM, Scar-L, Groza, AUG, QBZ\n- SMG: UMP45, Vector, Uzi, MP5K, Thompson\n- Sniper: AWM, Kar98k, M24, Mosin Nagant\n- DMR: SKS, Mini14, SLR, Mk14, QBU\n- Shotguns: DBS, S12K, S1897, S686\n- LMG: DP-28, M249, MG3",
+  "awm": "AWM: Bolt-action sniper, highest damage (120 per shot). Uses .300 Magnum ammo. Effective up to 1000m. Best for long-range headshots.",
+  "m416": "M416: Most balanced AR. Uses 5.56mm ammo. Moderate recoil, high stability with attachments. Damage: 41 per shot.",
+  "akm": "AKM: High-damage AR (47 per shot). Uses 7.62mm. Strong in close range but high recoil.",
+  "groza": "Groza: Rare AR (airdrop only). Uses 7.62mm. Damage 47, very high fire rate. Deadly in close combat.",
+  "ump45": "UMP45: SMG using .45 ACP ammo. Damage 41. Best close–mid range SMG, low recoil.",
+  "vector": "Vector: SMG with extremely fast fire rate. Uses .45 ACP. Small mag, but deadly if extended mag attached.",
+  "dp28": "DP-28: LMG using 7.62mm. High damage per shot, slow fire rate, stable recoil. Good for mid–long spray.",
+  "awm vs kar98k": "AWM (120 dmg, airdrop only, 300 Magnum) vs Kar98k (75 dmg, 7.62mm, world spawn). AWM is superior in every way.",
+
+  // 🗺 Maps
+  "maps": "PUBG Maps:\n- Erangel: Classic map, balanced combat\n- Miramar: Desert, long-range fights\n- Sanhok: Small, close-range action\n- Vikendi: Snow map, mid-range\n- Livik: Smallest map, quick matches",
+  "erangel": "Erangel: 8x8 map. Famous hot drops: Pochinki, School, Military Base, Georgopol. Balanced terrain.",
+  "miramar": "Miramar: 8x8 desert map. Hot drops: Hacienda, Pecado, Los Leones. Open areas, best for snipers.",
+  "sanhok": "Sanhok: 4x4 map. Hot drops: Bootcamp, Paradise Resort, Ruins. Fast-paced close combat.",
+  "vikendi": "Vikendi: 6x6 snow map. Hot drops: Castle, Cosmodrome, Villa. Mid-range combat.",
+  "livik": "Livik: 2x2 map. Matches last 15 minutes. Hot drops: Midstein, Power Plant, Blomster.",
+
+// 🚗 Vehicles
+  "vehicles": "Vehicles in PUBG:\n- UAZ (3 types: Open, Closed, Armored)\n- Dacia: 4 seats, fast\n- Buggy: 2 seats, off-road\n- Motorcycle: Fastest, risky\n- BRDM: Armored, amphibious, strongest",
+  "brdm": "BRDM: Armored vehicle, obtained from flare gun outside safe zone. Amphibious (works on water). Highest HP.",
+  "dacia": "Dacia: 4-seater car. Very fast on roads, weak off-road. Medium durability.",
+  "buggy": "Buggy: 2-seater, great off-road handling, weak protection.",
+  "motorcycle": "Motorcycle: Fastest land vehicle. 2–3 seats. Hard to control, very risky.",
+
+  // 💊 Healing & Boosts
+  "healing": "Healing items:\n- Medkit: Full HP\n- First Aid: 75% HP\n- Bandages: Small heal\n- Adrenaline Syringe: Full boost\n- Painkiller: +60% boost\n- Energy Drink: +30% boost",
+  "boost system": "Boost bar effects:\n- 0–25%: HP regen (slow)\n- 25–75%: Faster regen\n- 75–100%: Regen + speed boost",
+
+  // 💣 Throwables
+  "throwables": "Throwables:\n- Frag Grenade: Explosive damage\n- Smoke: Cover + revives\n- Molotov: Fire damage\n- Stun Grenade: Blinds enemies",
+  
+  // 🎯 Attachments
+  "attachments": "Attachments:\n- AR/SMG: Compensator, Suppressor, Flash Hider\n- Scopes: Red Dot, Holo, 2x, 3x, 4x, 6x, 8x, 15x\n- Mags: Extended, Quickdraw\n- Grips: Vertical, Angled, Half Grip, Laser",
+  "best attachments": "Best combos:\n- M416: Compensator + Vertical Grip + Extended Mag + 6x\n- AKM: Compensator + Red Dot + Extended Mag\n- Sniper: Suppressor + 8x + Cheek Pad",
+
+  // 🏅 Ranks & Gameplay
+  "ranks": "PUBG Ranks:\n1. Bronze\n2. Silver\n3. Gold\n4. Platinum\n5. Diamond\n6. Crown\n7. Ace\n8. Conqueror",
+  "rank up fast": "Tips to rank up:\n1. Survive longer (placement > kills)\n2. Maintain KD > 2\n3. Play in squad with comms\n4. Use tier protection cards\n5. Avoid reckless hot drops every match",
+
+  // 🎮 Settings & Tips
+  "sensitivity": "Recommended Sensitivity:\n- Camera: 100%\n- ADS: 30–40%\n- Gyroscope: 300–350%\nTip: Adjust to control recoil.",
+  "gyroscope": "Gyroscope helps control recoil by tilting phone. Many pros use full gyroscope for better sprays.",
+  "lag fix": "Lag fix tips:\n- Lower graphics settings\n- Use Smooth + Extreme FPS\n- Close background apps\n- Enable 4G/5G only mode",
+
+  // 🧠 Strategies
+  "hot drops": "Best hot drops:\n- Erangel: Pochinki, School, Georgopol\n- Sanhok: Bootcamp, Paradise\n- Miramar: Hacienda, Pecado\n- Vikendi: Castle, Cosmodrome",
+  "camping vs rushing": "Camping: Safe, better survival, less kills.\nRushing: Risky, more kills, better practice.\nBest strategy = mix both.",
+  "final circle": "Final Circle Tips:\n- Stay inside zone edge with cover\n- Use throwables before rushing\n- Always prone in grass if open zone\n- Third-party fights when possible"
+    };
+
+    function findAnswer(query) {
+      query = query.toLowerCase();
+      for (let key in knowledgeBase) {
+        if (query.includes(key)) return knowledgeBase[key];
+      }
+      return "I don’t know that yet 🤔. Try asking about weapons, maps, ranks, vehicles, or strategies!";
+    }
+
+    function addMessage(content, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender === "user" ? "user-message" : "bot-message");
+      msg.innerHTML = content + `<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user");
+      input.value = "";
+
+      const botMsg = document.createElement("div");
+      botMsg.classList.add("message", "bot-message");
+      botMsg.textContent = "Typing...";
+      chat.appendChild(botMsg);
+      chat.scrollTop = chat.scrollHeight;
+
+      setTimeout(() => {
+        botMsg.innerHTML = findAnswer(text) + `<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+        chat.scrollTop = chat.scrollHeight;
+      }, 700);
+    }
+
+    function suggest(text) {
+      document.getElementById("userInput").value = text;
+      sendMessage();
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("light");
+    }
+  </script>
+</body>
+</html>
+
