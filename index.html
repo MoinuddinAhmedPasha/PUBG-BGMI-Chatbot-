@@ -1,180 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PUBG AI Chatbot By Moinuddin Ahmed Pasha</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #1b1b1b;
-      color: #fcf5f5;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      background: #222;
-      padding: 12px;
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: bold;
-      border-bottom: 2px solid #333;
-      position: relative;
-    }
-    header button {
-      position: absolute;
-      right: 10px;
-      top: 8px;
-      padding: 6px 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #444;
-      color: #fff;
-    }
-    #chat {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #111;
-    }
-    .message {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 10px;
-      position: relative;
-      word-wrap: break-word;
-    }
-    .user-message {
-      align-self: flex-end;
-      background: #007bff;
-      color: #fff;
-      border-bottom-right-radius: 0;
-    }
-    .bot-message {
-      align-self: flex-start;
-      background: #333;
-      color: #fff;
-      border-bottom-left-radius: 0;
-    }
-    .timestamp {
-      display: block;
-      font-size: 0.7rem;
-      opacity: 0.7;
-      margin-top: 4px;
-    }
-    #input-area {
-      display: flex;
-      padding: 8px;
-      background: #222;
-      border-top: 2px solid #333;
-    }
-    #userInput {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      outline: none;
-    }
-    #sendBtn {
-      margin-left: 8px;
-      padding: 12px 16px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 6px;
-      background: #007bff;
-      color: #fff;
-      cursor: pointer;
-    }
-    #sendBtn:hover {
-      background: #0056b3;
-    }
-    #suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 6px;
-      background: #181818;
-      border-top: 1px solid #333;
-    }
-    #suggestions button {
-      flex: 1;
-      padding: 10px;
-      font-size: 0.9rem;
-      border: none;
-      border-radius: 6px;
-      background: #444;
-      color: #fff;
-      cursor: pointer;
-      min-width: 80px;
-    }
-    #suggestions button:hover {
-      background: #555;
-    }
-    /* Light mode */
-    body.light {
-      background: #f7f7f7;
-      color: #111;
-    }
-    body.light header {
-      background: #ddd;
-      color: #000;
-      border-bottom: 2px solid #bbb;
-    }
-    body.light #chat {
-      background: #f1f1f1;
-    }
-    body.light .bot-message {
-      background: #e0e0e0;
-      color: #000;
-    }
-    body.light .user-message {
-      background: #007bff;
-      color: #fff;
-    }
-    body.light #input-area {
-      background: #ddd;
-      border-top: 2px solid #bbb;
-    }
-    body.light #suggestions {
-      background: #e9e9e9;
-    }
-    /* Responsive mobile */
-    @media (max-width: 600px) {
-      header {
-        font-size: 1.2rem;
-        padding: 10px;
-      }
-      #userInput {
-        font-size: 0.9rem;
-        padding: 10px;
-      }
-      #sendBtn {
-        font-size: 0.9rem;
-        padding: 10px 12px;
-      }
-      #suggestions button {
-        font-size: 0.8rem;
-        padding: 8px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUBG AI Chatbot | Moinuddin Ahmed Pasha</title>
+<style>
+/* Global body */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #1b1b1b;
+  color: #fcf5f5;
+}
+
+/* Intro Screen */
+#intro {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertical center */
+  align-items: center;     /* horizontal center */
+  background: #111;
+  color: #fff;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 1s ease;
+  text-align: center;
+  padding: 0; /* remove padding to avoid offset */
+  box-sizing: border-box;
+}
+#intro h1 { font-size: 2.5rem; margin: 10px 0; }
+#intro p { font-size: 1.2rem; margin: 5px 0; }
+#intro small { font-size: 0.9rem; margin-top: 15px; }
+#intro h1 { font-size: 2.5rem; margin: 10px 0; }
+#intro p { font-size: 1.2rem; margin: 5px 0; }
+#intro small { font-size: 0.9rem; margin-top: 15px; }
+
+/* Home page */
+#home {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+#home h1 { font-size: 2rem; margin-bottom: 10px; }
+#home p { font-size: 1.1rem; margin-bottom: 20px; }
+#home button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+#home button:hover { background: #0056b3; }
+
+/* Chat container */
+#chatContainer {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Header */
+header {
+  background: #222;
+  padding: 12px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-bottom: 2px solid #333;
+  position: relative;
+}
+header button {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #444;
+  color: #fff;
+}
+header button:hover { background: #555; }
+
+/* Chat area */
+#chat {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #111;
+}
+
+/* Messages */
+.message {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  word-wrap: break-word;
+  opacity: 0;
+  animation: fadeIn 0.4s forwards;
+}
+.user-message { align-self: flex-end; background: #007bff; color: #fff; border-bottom-right-radius: 0; }
+.bot-message { align-self: flex-start; background: #333; color: #fff; border-bottom-left-radius: 0; }
+.timestamp { display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
+
+/* Input area */
+#input-area {
+  display: flex;
+  padding: 10px;
+  background: #222;
+  border-top: 2px solid #333;
+}
+#userInput {
+  flex: 1;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+#sendBtn {
+  margin-left: 8px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+#sendBtn:hover { background: #0056b3; }
+
+/* Suggestions buttons */
+#suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: #181818;
+  border-top: 1px solid #333;
+}
+#suggestions button {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+}
+#suggestions button:hover { background: #555; }
+
+/* Light mode */
+body.light {
+  background: #f7f7f7;
+  color: #111;
+}
+body.light header { background: #ddd; color: #000; border-bottom: 2px solid #bbb; }
+body.light #chat { background: #f1f1f1; }
+body.light .bot-message { background: #e0e0e0; color: #000; }
+body.light .user-message { background: #007bff; color: #fff; }
+body.light #input-area { background: #ddd; border-top: 2px solid #bbb; }
+body.light #suggestions { background: #e9e9e9; }
+
+/* Animations */
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #home h1 { font-size: 1.8rem; }
+  #home p { font-size: 1rem; }
+  #home button { font-size: 0.95rem; padding: 10px 18px; }
+  header { font-size: 1.2rem; padding: 10px; }
+  #userInput { font-size: 0.95rem; padding: 10px; }
+  #sendBtn { font-size: 0.95rem; padding: 10px 14px; }
+  #suggestions button { font-size: 0.85rem; padding: 8px; }
+}
+
+@media (max-width: 480px) {
+  #home h1 { font-size: 1.5rem; }
+  #home p { font-size: 0.95rem; }
+  #home button { font-size: 0.9rem; padding: 8px 14px; }
+  header { font-size: 1rem; }
+  #userInput { font-size: 0.9rem; padding: 8px; }
+  #sendBtn { font-size: 0.9rem; padding: 8px 12px; }
+  #suggestions button { font-size: 0.8rem; padding: 6px; }
+  #chat { padding: 10px; }
+}
+</style>
 </head>
 <body>
+
+<!-- Intro Screen -->
+<div id="intro">
+  <h1>MAP SOLN</h1>
+  <p>PUBG/BGMI Chat Bot By <br> Moinuddin Ahmed Pasha</p>
+  <p>Leading the way in gaming AI solutions</p>
+  <small>Loading...</small>
+</div>
+
+<!-- Home Page -->
+<div id="home">
+  <h1>Welcome to PUBG AI Chatbot</h1>
+  <p>Get instant tips, strategies, weapon guides, and map info for PUBG Mobile & PC.</p>
+  <button onclick="enterChat()">Enter Chatbot</button>
+</div>
+
+<!-- Chat Page -->
+<div id="chatContainer">
   <header>
-    PUBG AI Chatbot By Moinuddin Ahmed Pasha
+    PUBG AI Chatbot By MAP SOLN
     <button onclick="toggleMode()">🌙/☀️</button>
   </header>
 
   <div id="chat"></div>
 
-  <!-- Static Quick Suggestions -->
   <div id="suggestions">
     <button onclick="suggest('weapons')">🔫 Weapons list</button>
     <button onclick="suggest('best gun for close range')">🎯 Best close-range gun</button>
@@ -189,12 +248,38 @@
     <input id="userInput" type="text" placeholder="Ask about PUBG..." onkeydown="if(event.key==='Enter')sendMessage()">
     <button id="sendBtn" onclick="sendMessage()">Send</button>
   </div>
+</div>
 
-  <script>
-    const chat = document.getElementById("chat");
+<script>
+// Intro fade-out
+window.onload = () => {
+  setTimeout(() => {
+    const intro = document.getElementById('intro');
+    intro.style.opacity = 0;
+    setTimeout(() => { 
+      intro.style.display = 'none'; 
+      document.getElementById('home').style.display = 'flex'; 
+    }, 1000);
+  }, 3000);
+};
 
-    const knowledgeBase = {
-      "weapons": "PUBG has ARs (M416, AKM, Beryl), DMRs (SKS, Mini14), Snipers (AWM, Kar98k), SMGs (UZI, UMP45), Shotguns (S1897, DBS), and LMGs (DP-28, M249).",
+// Show chat page
+function enterChat() {
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('chatContainer').style.display = 'flex';
+}
+
+// Knowledge base
+const chat = document.getElementById("chat");
+const knowledgeBase = {
+  "weapons": "PUBG has ARs, DMRs, Snipers, SMGs, Shotguns, LMGs.",
+  "best gun for close range": "The UZI, Vector, and DBS are deadly at close range.",
+  "hot drop erangel": "Popular hot drops: Pochinki, School, Military Base, Georgopol.",
+  "rank up": "To rank up: survive longer, get kills, avoid hot drops, play in squad.",
+  "sensitivity": "Recommended: Gyroscope ON, ADS 35–45%, 6x around 15%, 8x around 8–12%.",
+  "vehicles": "Vehicles: UAZ, Dacia, Buggy, Bike, BRDM.",
+  "healing": "Healing items: Bandages, First Aid Kit, Med Kit, Energy Drink, Painkiller, Adrenaline.",
+  "weapons": "PUBG has ARs (M416, AKM, Beryl), DMRs (SKS, Mini14), Snipers (AWM, Kar98k), SMGs (UZI, UMP45), Shotguns (S1897, DBS), and LMGs (DP-28, M249).",
       "best gun for close range": "The UZI, Vector, and DBS are deadly at close range due to their high fire rate.",
       "best gun for long range": "The AWM is the king of snipers, while Mini14 and SLR are great for DMR use.",
       "attachments": "Attachments include Scopes (2x–8x), Grips (Vertical, Angled), Muzzles (Compensator, Suppressor), and Magazines.",
@@ -271,53 +356,54 @@
   "hot drops": "Best hot drops:\n- Erangel: Pochinki, School, Georgopol\n- Sanhok: Bootcamp, Paradise\n- Miramar: Hacienda, Pecado\n- Vikendi: Castle, Cosmodrome",
   "camping vs rushing": "Camping: Safe, better survival, less kills.\nRushing: Risky, more kills, better practice.\nBest strategy = mix both.",
   "final circle": "Final Circle Tips:\n- Stay inside zone edge with cover\n- Use throwables before rushing\n- Always prone in grass if open zone\n- Third-party fights when possible"
-    };
+};
 
-    function findAnswer(query) {
-      query = query.toLowerCase();
-      for (let key in knowledgeBase) {
-        if (query.includes(key)) return knowledgeBase[key];
-      }
-      return "I don’t know that yet 🤔. Try asking about weapons, maps, ranks, vehicles, or strategies!";
-    }
+// Send message
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage(text, "user");
+  input.value = "";
 
-    function addMessage(content, sender) {
-      const msg = document.createElement("div");
-      msg.classList.add("message", sender === "user" ? "user-message" : "bot-message");
-      msg.innerHTML = content + `<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
-    }
+  const botMsg = document.createElement("div");
+  botMsg.classList.add("message","bot-message");
+  botMsg.textContent = "Typing...";
+  chat.appendChild(botMsg);
+  chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
 
-    function sendMessage() {
-      const input = document.getElementById("userInput");
-      const text = input.value.trim();
-      if (!text) return;
+  setTimeout(() => {
+    botMsg.innerHTML = findAnswer(text) + `<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+    chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+  }, 600);
+}
 
-      addMessage(text, "user");
-      input.value = "";
+// Suggestion clicked
+function suggest(text) { document.getElementById("userInput").value=text; sendMessage(); }
 
-      const botMsg = document.createElement("div");
-      botMsg.classList.add("message", "bot-message");
-      botMsg.textContent = "Typing...";
-      chat.appendChild(botMsg);
-      chat.scrollTop = chat.scrollHeight;
+// Toggle light/dark
+function toggleMode() { document.body.classList.toggle("light"); }
 
-      setTimeout(() => {
-        botMsg.innerHTML = findAnswer(text) + `<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
-        chat.scrollTop = chat.scrollHeight;
-      }, 700);
-    }
+// Find answer
+function findAnswer(query){
+  query=query.toLowerCase();
+  for(let key in knowledgeBase){
+    if(query.includes(key.toLowerCase())) return knowledgeBase[key];
+  }
+  return "I don’t know that yet 🤔. Try asking about weapons, maps, vehicles, or strategies!";
+}
 
-    function suggest(text) {
-      document.getElementById("userInput").value = text;
-      sendMessage();
-    }
+// Add message
+function addMessage(content,sender){
+  const msg=document.createElement("div");
+  msg.classList.add("message", sender==="user"?"user-message":"bot-message");
+  msg.innerHTML=content+`<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+  chat.appendChild(msg);
+  chat.scrollTo({top:chat.scrollHeight, behavior:'smooth'});
+}
+</script>
 
-    function toggleMode() {
-      document.body.classList.toggle("light");
-    }
-  </script>
 </body>
 </html>
+
 
